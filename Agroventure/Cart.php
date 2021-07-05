@@ -14,17 +14,48 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
 	//die("Connection failed: " . $conn->connect_error);
 	$error='Error connecting to website. Please try again.';
-} else {
-  $sql = "SELECT od.*, p.name, p.picture_1 FROM orders as o JOIN `order_detail` as od ON(o.id=od.order_id) JOIN products as p ON(p.id=od.product_id) WHERE o.user_id = ".$_SESSION['id']." AND o.order_status='P'";
-  $cart = $conn->query($sql);
-  if ($conn->query($sql) === FALSE) {
-    $error='Error in saving data. Please try again.';
-  }
 }
 
-print_r($_POST);
-if($_POST['quantity'] && count($_POST['quantity'])>0) {
+if(!empty($_GET['id'])) {
+  $sql = "SELECT price FROM `products` WHERE id = ".$_GET['id'];
+  $products = $conn->query($sql);
+  if ($products->num_rows > 0) {
+    $rowProduct = $products->fetch_assoc();
 
+    $sql = "SELECT id FROM `orders` WHERE user_id = ".$_SESSION['id']." AND order_status='P'";
+    $pendingOrder = $conn->query($sql);
+
+    $orderId = 0;
+    if ($pendingOrder->num_rows > 0) {
+      $row = $pendingOrder->fetch_assoc();
+      $orderId = $row['id'];
+    } else {
+      $sql = "INSERT INTO `orders` (user_id, order_status, shipment_status) VALUES ('".$_SESSION['id']."', 'p', 'p')";
+      if ($conn->query($sql) !== FALSE) {
+        $orderId = $conn->insert_id;
+      }
+    }
+    $sql = "INSERT INTO `order_detail` (order_id, product_id, quantity, price) VALUES ('".$orderId."', '".$_GET['id']."', '1', '".$rowProduct['price']."')";
+    $conn->query($sql);
+  }
+  header("Location: Cart.php");
+}
+
+if(!empty($_GET['del'])) {
+  $sql = "DELETE FROM `order_detail` WHERE id=".$_GET['del'];
+  $conn->query($sql);
+  header("Location: Cart.php");
+}
+
+$sql = "SELECT od.*, p.name, p.picture_1 FROM orders as o JOIN `order_detail` as od ON(o.id=od.order_id) JOIN products as p ON(p.id=od.product_id) WHERE o.user_id = ".$_SESSION['id']." AND o.order_status='P'";
+$cart = $conn->query($sql);
+
+if(!empty($_POST['quantity']) && count($_POST['quantity'])>0) {
+  foreach($_POST['quantity'] as $id => $quantity) {
+    $sql = "UPDATE `order_detail` SET quantity='".$quantity."' WHERE id=".$id;
+    $conn->query($sql);
+  }
+  header("Location: Cart.php");
 }
 $conn->close();
 echo $error;
@@ -39,7 +70,7 @@ echo $error;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous" />
   <title>Agroventure Cart</title>
 </head>
-<body>
+<body style="background-color: rgb(187, 203, 161);">
   <div class="nav bg-dark w-100">
     <ul class="main-nav bg-dark">
      <a href="index.html"><li><h2 style="color: white;">Agroventure</h2></li></a>
@@ -57,11 +88,13 @@ echo $error;
           <div class="col fs-5">Price</div>
           <div class="col ml-5 fs-5">Quantity</div>
           <div class="col ml-5 fs-5">Amount</div>
-        </ul>
+          <div class="col ml-5 fs-5">Delete</div>
+        </div>
       </div>
+      <div class="container">
       <?php
+        $totalPrice=0;
         if ($cart->num_rows>0) {
-          $totalPrice=0;
           while($row = $cart->fetch_assoc()) {
             $amount=$row["price"] * $row['quantity'];
             $totalPrice+=$amount;
@@ -70,18 +103,28 @@ echo $error;
               <div class="col"><img src="uploads/'.$row["picture_1"].'" height="25" alt="Placholder Image 2" class="product-frame"></div>
               <div class="col"><h1><strong><span class="item-quantity">'.$row["name"].'</span></strong></h1></div>
               <div class="col">'.$row["price"].'</div>
-              <div class="col"><input type="number" name="quantity['.$row['product_id'].']" value="'.$row['quantity'].'" min="1" class="quantity-field"></div>
+              <div class="col"><input type="number" name="quantity['.$row['id'].']" value="'.$row['quantity'].'" min="1" class="quantity-field"></div>
               <div class="col">'.$amount.'</div>
+              <div class="col"><a class="btn btn-danger" onclick="return confirm(\'Are you sure you want to remove this product from cart?\');" href="Cart.php?del='.$row['id'].'" role="button">Remove</a></div>
             </div>';
           }
           $_SESSION['payableAmount'] =  $totalPrice;
         }
       ?>
-        <input type="submit" name="updateCart" value="Update Cart" />
+      </div>
+      <div class="clearfix"></div>
+      <div class="container">
+        <div class="row">
+          <div class="col-12 fs-5 mt-5 d-flex justify-content-center"><input type="submit" class="btn btn-secondary" name="updateCart" value="Update Cart" /></div>
+        </div>
+      </div>
+      <?php
+        
+      ?>
       </form>
     </div>
     <aside>
-      <div class="w-25 h-50 summary position-fixed end-0">
+      <div class="w-25 h-50 summary position-fixed end-0" style="min-height:300px;">
         <div class="summary-total-items"><span class="total-items fs-4">Price</span></div>
         <div class="summary-subtotal fs-5">
           <div class="subtotal-title">Subtotal</div>
@@ -213,6 +256,8 @@ aside {
 
 .basket {
   width: 70%;
+  background: #fff;
+  padding: 30px 0;
 }
 
 .basket-module {

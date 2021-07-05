@@ -10,16 +10,13 @@ $password = "";
 $dbname = "agroventure";
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
-
-$sqlProduct = "SELECT count(*) as numberOfProducts FROM `products` WHERE user_id = ".$_SESSION['id'];
-$products = $conn->query($sqlProduct);
-
-// Check connection
 if ($conn->connect_error) {
 	//die("Connection failed: " . $conn->connect_error);
 	$error='Error connecting to website. Please try again.';
-} else {
-    
+}
+if(!empty($_GET['id'])) {
+    $sql = "SELECT a.* FROM `orders` as o JOIN `address` as a ON(o.user_id=a.user_id) WHERE o.id = ".$_GET['id'];
+    $address = $conn->query($sql);
 }
 $conn->close();
 echo $error;
@@ -45,6 +42,7 @@ echo $error;
                     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 nav-pills">
                         <li><a href="dashboard.php" class="link-light navbar-link nav-link px-2 active">Dashboard</a></li>
                         <li><a href="orders.php" class="link-light navbar-link nav-link px-2">Orders</a></li>
+                        <li><a href="#" class="link-light navbar-link nav-link px-2">Customers</a></li>
                         <li><a href="products-list.php" class="link-light navbar-link nav-link px-2">Products</a></li>
                     </ul>
                     
@@ -77,14 +75,15 @@ echo $error;
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                        No of Products:
+                        <strong>Ship To Address:</strong> <br>
                         <?php
-                            if ($products->num_rows > 0) {
-                                while($row = $products->fetch_assoc()) {
-                                    echo $row['numberOfProducts'];
+                            if ($address->num_rows > 0) {
+                                while($row = $address->fetch_assoc()) {
+                                    echo $row['address1'].'<br>'.$row['address2'].'<br>'.$row['city'].', '.$row['state'].' '.$row['zip'];
                                 }
                             }
-                        ?>
+                        ?><br><br>
+                        <a class="btn btn-primary" href="shipping-success.php?id=<?php echo $_GET['id'] ?>" role="button">Ship Now</a>
                         </div>
                     </div>
                 </div>

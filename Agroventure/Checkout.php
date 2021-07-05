@@ -23,15 +23,10 @@ if(!empty($_POST)) {
 		$sql = "INSERT INTO `address` (user_id, address1, address2, city, state, zip) VALUES ('".$_SESSION['id']."', '".$_POST['houseadd-1']."', '".$_POST['houseadd-2']."', '".$_POST['city']."', '".$_POST['state']."', '".$_POST['zip']."')";
 
 		if ($conn->query($sql) === FALSE) {
-			//die("Error: " . $sql . "<br>" . $conn->error);
-			if ($conn->errno == 1062){
-				$error='You already have an account with this email id';
-			} else{
-			//print_r($conn);
 			$error='Error in saving data. Please try again.';
-			}
-
 		} else {
+      $sql = "Update `orders` SET order_status='c' WHERE order_status='p' AND user_id = ".$_SESSION['id'];
+      $conn->query($sql);
 			//redirect to another page
 			header("Location: ThankYou.html");
 		}
@@ -46,10 +41,11 @@ if(!empty($_POST)) {
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agroventure Checkout</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous" />
 </head>
-<body>
+<body style="background-color: rgb(187, 203, 161);">
   <div class="container">
-    <div class="title">
+    <div class="title bg-dark text-light">
         <h2>Checkout Form</h2>
     </div>
   <div class="d-flex">
@@ -82,7 +78,7 @@ if(!empty($_POST)) {
         <input type="text" name="zip" placeholder="Your Postcode" required> 
       </label>
       
-        <button type="submit">Make Order</button>
+        <button type="submit" class="btn btn-success">Make Order</button>
         
         
     </form>
@@ -110,7 +106,7 @@ if(!empty($_POST)) {
        
       </div>
       <a href="shop.php">
-      <button type="button">Don't want to buy? So Continue Shopping</button>
+      <button type="button" class="btn btn-success">Don't want to buy? So Continue Shopping</button>
       </a>
     </div>
     
@@ -124,7 +120,6 @@ if(!empty($_POST)) {
       @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700');
 
 body{
-  background: url('http://all4desktop.com/data_images/original/4236532-background-images.jpg');
   font-family: 'Roboto Condensed', sans-serif;
   color: #262626;
   margin: 5% 0;
@@ -156,11 +151,6 @@ form{
   flex: 2;
 }
 .title{
-  background: -webkit-gradient(linear, left top, right bottom, color-stop(0, #5195A8), color-stop(100, #70EAFF));
-  background: -moz-linear-gradient(top left, #5195A8 0%, #70EAFF 100%);
-  background: -ms-linear-gradient(top left, #5195A8 0%, #70EAFF 100%);
-  background: -o-linear-gradient(top left, #5195A8 0%, #70EAFF 100%);
-  background: linear-gradient(to bottom right, #5195A8 0%, #70EAFF 100%);
   border-radius:5px 5px 0 0 ;
   padding: 20px;
   color: #f6f6f6;

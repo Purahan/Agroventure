@@ -12,7 +12,7 @@ $dbname = "agroventure";
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 $sql = "SELECT * FROM `products` WHERE 1";
-$categories = $conn->query($sql);
+$products = $conn->query($sql);
 // Check connection
 if ($conn->connect_error) {
 	//die("Connection failed: " . $conn->connect_error);
@@ -88,8 +88,8 @@ echo $error;
 </div>
 <i>
 <?php
-if ($categories->num_rows > 0) {
-  while($row = $categories->fetch_assoc()) {
+if ($products->num_rows > 0) {
+  while($row = $products->fetch_assoc()) {
     if($row['category_id'] == "1"){
       $row['category_id'] = "fruits";
     }
@@ -121,7 +121,7 @@ if ($categories->num_rows > 0) {
       <div class="card-body mb-0">
         <h5 class="card-title fs-2">'.$row["name"].'</h5>
         <p class="card-text text-dark fs-6 mb-0">Price: ₹'.$row["price"].'<br />'.$row["description"].'</p>
-        <a href="Cart.php" class="btn btn-primary">Add to Cart</a>
+        <a href="Cart.php?id='.$row['id'].'" class="btn btn-primary">Add to Cart</a>
       </div>
     </div>';
   }

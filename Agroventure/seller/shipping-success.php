@@ -10,16 +10,15 @@ $password = "";
 $dbname = "agroventure";
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
-
-$sqlProduct = "SELECT count(*) as numberOfProducts FROM `products` WHERE user_id = ".$_SESSION['id'];
-$products = $conn->query($sqlProduct);
-
 // Check connection
 if ($conn->connect_error) {
 	//die("Connection failed: " . $conn->connect_error);
 	$error='Error connecting to website. Please try again.';
-} else {
-    
+}
+
+if(!empty($_GET['id'])) {
+    $sql = "Update `orders` SET shipment_status='c' WHERE id = ".$_GET['id'];
+    $conn->query($sql);
 }
 $conn->close();
 echo $error;
@@ -45,6 +44,7 @@ echo $error;
                     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 nav-pills">
                         <li><a href="dashboard.php" class="link-light navbar-link nav-link px-2 active">Dashboard</a></li>
                         <li><a href="orders.php" class="link-light navbar-link nav-link px-2">Orders</a></li>
+                        <li><a href="#" class="link-light navbar-link nav-link px-2">Customers</a></li>
                         <li><a href="products-list.php" class="link-light navbar-link nav-link px-2">Products</a></li>
                     </ul>
                     
@@ -77,14 +77,7 @@ echo $error;
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                        No of Products:
-                        <?php
-                            if ($products->num_rows > 0) {
-                                while($row = $products->fetch_assoc()) {
-                                    echo $row['numberOfProducts'];
-                                }
-                            }
-                        ?>
+                        <strong>Order Shipped Successfully</strong>
                         </div>
                     </div>
                 </div>
