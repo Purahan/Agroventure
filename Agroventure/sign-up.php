@@ -33,7 +33,7 @@ if(!empty($_POST)) {
 
 		} else {
 			//redirect to another page
-			header("Location: Shop.php");
+			header("Location: sign-in.php");
 		}
 	}
 	$conn->close();
@@ -72,6 +72,12 @@ if(!empty($_POST)) {
                 <h1 class="fs-1">Register</h1>
                 <p>Please fill in this form to create an account.</p>
                 <hr>
+                <!--If any error it will be printed here-->
+                <?php if(!empty($error)) { ?>						
+                    <div class="error alert alert-danger">
+                        <?php echo $error;?>
+                    </div>
+				<?php } ?>
                 <div class="row g-3">
                     <div class="col">
                         <label for="f-name">First Name</label>

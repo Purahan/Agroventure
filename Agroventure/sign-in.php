@@ -72,6 +72,12 @@ if(!empty($_POST)) {
                 <p>Please fill in this form to Login in to your account.</p>
                 <hr>
                 <div class="row my-3">
+                <!--If any error it will be printed here-->
+                <?php if(!empty($error)) { ?>						
+                    <div class="error alert alert-danger">
+                        <?php echo $error;?>
+                    </div>
+				<?php } ?>
                     <div class="col">
                         <label for="email" class="form-label">Username</label>
                         <input type="email" class="form-control" id="email" placeholder="Email" name="email" aria-describedby="email" required />
