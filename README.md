@@ -13,5 +13,5 @@ Fruits
 	4 	Poultry Products
 	5 	Handicrafts
 	6 	Handloom
-  7   Clay Products
+        7   Clay Products
 	8 	Other
